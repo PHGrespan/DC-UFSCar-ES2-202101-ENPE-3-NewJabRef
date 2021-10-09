@@ -3,16 +3,21 @@
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+
+/*  Foi validado o Bibtexkey(definido pelo usuário ou automaticamente, deve ter no
+    mínimo 2 caracteres, sendo o primeiro uma letra maiúscula ou minúscula)
+    na funcao setId().
+
+*/
+
 package net.sf.jabref.model.entry;
 
 import java.beans.PropertyChangeEvent;
@@ -38,9 +43,12 @@ import java.util.TreeSet;
 
 import net.sf.jabref.model.database.BibDatabase;
 
+import com.google.common.eventbus.EventBus;
 import com.google.common.base.Strings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jabref.model.entry.field.InternalField;
+
 
 public class BibEntry {
     private static final Log LOGGER = LogFactory.getLog(BibEntry.class);
@@ -53,6 +61,7 @@ public class BibEntry {
     private String id;
     private String type;
     private Map<String, String> fields = new HashMap<>();
+    private int CharacterChange = 0;
 
     private final VetoableChangeSupport changeSupport = new VetoableChangeSupport(this);
 
@@ -99,20 +108,54 @@ public class BibEntry {
         setType(type);
     }
 
+    
     /**
-     * Sets this entry's ID, provided the database containing it
-     * doesn't veto the change.
+     * The two functions are going to be used on de function setId().
      *
+     * private int SCharacterChange(String value, String newValue).
+     * public FieldChanged(BibEntry bibEntry, Field field, String value, String newValue).
+     */
+
+    private int SCharacterChange(String value, String newValue) {
+        if (value == newValue) {
+            return 0;
+        } else if ((value == null) && (newValue != null)) {
+            return newValue.length();
+        } else if ((newValue == null) && (value != null)) {
+            return value.length();
+        } else if ((value.length() == newValue.length()) && !value.equals(newValue)) {
+            return newValue.length();
+        } else {
+            return Math.abs(newValue.length() - value.length());
+        }
+    }
+    public FieldChanged(BibEntry bibEntry, Field field, String value, String newValue){
+        super(bibEntry);
+        this.field = field;
+        this.value = value;
+        this.newValue = newValue;
+        this.CharacterChange = SCharacterChange(value, newValue);
+    }
+
+    /**
+     * Sets this entry's identifier (ID). It is used internally  to distinguish different BibTeX entries.
+     * eventBus.post import from com.google.common.eventbus.
+     * InternalField import from org.jabref.model.entry.field.InternalField.
+     * The BibTexKey is the {@link InternalField#KEY_FIELD}.
      * @param id The ID to be used
      */
     public void setId(String id) {
         Objects.requireNonNull(id, "Every BibEntry must have an ID");
+        
+        String Id = this.id;
 
         try {
             firePropertyChangedEvent(BibEntry.ID_FIELD, this.id, id);
         } catch (PropertyVetoException pv) {
             throw new IllegalStateException("Couldn't change ID: " + pv);
         }
+
+        eventBus.post(new FieldChanged(this, InternalField.INTERNAL_ID_FIELD, Id, newId));
 
         this.id = id;
         changed = true;
@@ -652,3 +695,4 @@ public class BibEntry {
         return Objects.hash(type, fields);
     }
 }
+
