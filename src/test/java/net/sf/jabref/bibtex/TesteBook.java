@@ -62,7 +62,7 @@ public class TesteBook {
                 "  title   = {Felicidade, Modo de usar}," + Globals.NEWLINE +
                 "  publisher    = {Planeta}," + Globals.NEWLINE +
                 "  year    = {2018}," + Globals.NEWLINE +
-                "  author  = {Karnal, Cortella, Pondé}," + Globals.NEWLINE +
+                "  author  = {Karnal, L. and Cortella, M. S. and Pondé, L. F.}," + Globals.NEWLINE +
                 "  editor   = {Planeta}," + Globals.NEWLINE +
                 "  pages   = {124}," + Globals.NEWLINE +
                 "  note    = {O livre é resultado do debate entre...}," + Globals.NEWLINE +
