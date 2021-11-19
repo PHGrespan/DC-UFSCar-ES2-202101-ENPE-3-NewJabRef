@@ -421,8 +421,16 @@ public class BibEntry {
             fields.put(fieldName, oldValue);
             throw new IllegalArgumentException("Change rejected: " + pve);
         }
-    }
+        
+        if (fieldName.equals("year")) {
+            int yearValue = Integer.parseInt(value);
 
+            if((yearValue < Calendar.getInstance().getActualMinimum(Calendar.YEAR)) || (yearValue > Calendar.getInstance().get(Calendar.YEAR))) {
+                throw new IllegalArgumentException("'" + value + "' is an invalid value for year");
+            }
+        }  
+    }
+    
     /**
      * Remove the mapping for the field name, and notify listeners about
      * the change.
