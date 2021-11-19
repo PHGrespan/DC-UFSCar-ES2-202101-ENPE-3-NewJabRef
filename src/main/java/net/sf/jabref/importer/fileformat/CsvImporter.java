@@ -38,23 +38,20 @@ public class CsvImporter extends ImportFormat {
 
         String line = reader.readLine();
         while (line != null) {
-            if (!line.trim().isEmpty()) {
-
+            if (!line.trim().isEmpty() && !line.contains("author")) {
 
                 BibEntry entry = new BibEntry();
 
                 String[] fields = line.split(";");
-                
+
                 entry.setType(BibtexEntryTypes.TECHREPORT);
-                entry.setField("year", fields[0]);
-                entry.setField("author", fields[1]);
-                entry.setField("title", fields[2]);
+                entry.setField("author", fields[0]);
+                entry.setField("title", fields[1]);
+                entry.setField("year", fields[2]);
 
                 items.add(entry);
-                
-                line = reader.readLine();
-                
             }
+            line = reader.readLine();
         }
         return items;
     }
@@ -63,4 +60,4 @@ public class CsvImporter extends ImportFormat {
     public String getExtensions() {
         return "csv";
     }
-} 
+}
